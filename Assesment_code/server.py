@@ -49,7 +49,7 @@ while True:
 	"""
 	try:
 		print("Waiting for new client... ")
-		
+
 		"""
 		 Dequeue a connection request from the queue created by listen() earlier.
 		 If no such request is in the queue yet, this will block until one comes

@@ -134,7 +134,7 @@ All request types:
 -  9 marks for handling the intricacies of TCP communication – i.e., that data is streamed from the source to the destination and hence data sent via a single send()/sendall() call may be fragmented and received across several sequential recv() calls, or data sent via multiple send()/sendall() calls may be collated and returned through a single recv() call.
 - 3 marks for handling of connection failures mid-way through the protocol.
 - 2 marks for appropriate logging/reporting.
-- 1 mark for parsing of command line arguments. 
+- 1 mark for parsing of command line arguments.
 
 Only for “put”/“get” requests:
 -  5 marks for correct handling/transferring of binary data (binary transfer, byte ordering, etc.).
@@ -156,6 +156,6 @@ For this assessed exercise, you can work on your own, or groups of two. Submit a
 - a heading stating the full name(s) and matriculation number(s) of the team member(s)
 - include a detailed description of the application-level protocol you designed (exact format of the exchanged messages, their fields and
 semantics, the order in which these messages are expected to be exchanged,etc.)
-- a discussion of the reasoning behind the design of your protocol and the associated design decisions. 
+- a discussion of the reasoning behind the design of your protocol and the associated design decisions.
 
 Only ONE (1) submission should be done per team. Any one of the team members can upload the submission via their Moodle account. Please make sure your submission clearly states the names of both students if you are submitting as a team of two
