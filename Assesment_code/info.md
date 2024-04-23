@@ -18,7 +18,7 @@ Use the code provided in the tutorial model
 
     should output waiting for client
 
- - run the client by opeining a diffrent powershell terminal and entering python myclient.py localhost <port number> <message> e.g python myclient.py localhost 2000 "this is my message"
+ - run the client by opeining a diffrent powershell terminal and entering python myclient.py localhost <port number> <message> e.g python client.py localhost 2000 "this is my message"
 
     should output Connecting to ('localhost', <port number>)...
     Connected. Now chatting...
