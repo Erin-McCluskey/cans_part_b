@@ -124,5 +124,38 @@ To do this run the following type of command in powershell. (This request will e
     - Any other error encountered in execution
 
 ### Marking scheme
+-  70 marks for the implementation
+    - 15 marks for the implementation of the “list” request type
+    - 25 marks for each of “put”/“get” request types
+-  30 marks for the report
+
+#### Implementation breakdown:
+All request types:
+-  9 marks for handling the intricacies of TCP communication – i.e., that data is streamed from the source to the destination and hence data sent via a single send()/sendall() call may be fragmented and received across several sequential recv() calls, or data sent via multiple send()/sendall() calls may be collated and returned through a single recv() call.
+- 3 marks for handling of connection failures mid-way through the protocol.
+- 2 marks for appropriate logging/reporting.
+- 1 mark for parsing of command line arguments. 
+
+Only for “put”/“get” requests:
+-  5 marks for correct handling/transferring of binary data (binary transfer, byte ordering, etc.).
+-  5 marks for support for stability/security features such as very large files, 0-sized files, no overwriting of existing files, very long filenames, etc.
+- 5 marks for appropriate structure of your code (functions, minimal repetition of code, informative but not excessive comments, etc.).
+
+#### Report breakdown
+- 20 marks for the quality of the design of the application-level protocol.
+- 10 marks for the discussion of the reasoning/design decisions.
 
 ### What to submit
+For this assessed exercise, you can work on your own, or groups of two. Submit azip file CANS2024-AE2-your-student-id.zip
+
+#### Zip should include
+- python source code files
+- report as a README
+
+#### The report include
+- a heading stating the full name(s) and matriculation number(s) of the team member(s)
+- include a detailed description of the application-level protocol you designed (exact format of the exchanged messages, their fields and
+semantics, the order in which these messages are expected to be exchanged,etc.)
+- a discussion of the reasoning behind the design of your protocol and the associated design decisions. 
+
+Only ONE (1) submission should be done per team. Any one of the team members can upload the submission via their Moodle account. Please make sure your submission clearly states the names of both students if you are submitting as a team of two
