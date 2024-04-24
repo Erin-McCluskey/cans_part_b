@@ -1,11 +1,13 @@
 import sys
 import socket
+from os import listdir
+from os.path import isfile, join
 
 def socket_to_screen(socket, sock_addr):
 	"""Reads data from a passed socket and prints it on screen.
 
 	Returns either when a newline character is found in the stream or the connection is closed.
-        The return value is the total number of bytes received through the socket.
+		The return value is the total number of bytes received through the socket.
 	The second argument is prepended to the printed data to indicate the sender.
 	"""
 	print(sock_addr + ": ", end="", flush=True) # Use end="" to avoid adding a newline after the communicating partner's info, flush=True to force-print the info
@@ -35,7 +37,7 @@ def socket_to_screen(socket, sock_addr):
 
 def keyboard_to_socket(socket):
 	"""Reads data from keyboard and sends it to the passed socket.
-	
+
 	Returns number of bytes sent, or 0 to indicate the user entered "EXIT"
 	"""
 	print("You: ", end="", flush=True) # Use end="" to avoid adding a newline after the prompt, flush=True to force-print the prompt
@@ -48,3 +50,29 @@ def keyboard_to_socket(socket):
 	# Send the whole line through the socket; remember, TCP provides no guarantee that it will be delivered in one go.
 	bytes_sent = socket.sendall(str.encode(user_input))
 	return bytes_sent
+
+def check_file_exists(side, filename):
+	if side == "client":
+		path = "client_data"
+	else:
+		path = "server_data"
+
+	files = [f for f in listdir(path) if isfile(join(path, f))]
+	if filename in files:
+		return True
+	else:
+		return False
+
+
+def send_file(socket,filename):
+    #Opens the file with the given filename and sends its data over the net-work through the provided socket
+	pass
+def recv_file(socket, filename):
+    #Creates the file with the given filename and stores into it data received from the provided socket
+	pass
+def send_listing(socket):
+    #Generates and sends the directory listing from the server to the client via the provided socket
+	pass
+def recv_listing(socket):
+    #Receives the listing from the server via the provided socket and prints it onscreen.
+	pass
