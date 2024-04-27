@@ -14,11 +14,11 @@
 
 ### Running the chats
 Use the code provided in the tutorial model
- - run the server by opening a powershell terminal and entering python server.py <port number> e.g python server.py 200
+ - run the server by opening a powershell terminal and entering python server.py <port number> e.g python server.py 2000
 
     should output waiting for client
 
- - run the client by opeining a diffrent powershell terminal and entering python myclient.py localhost <port number> <message> e.g python client.py localhost 2000 "this is my message"
+ - run the client by opeining a diffrent powershell terminal and entering python client.py localhost <port number> <message> e.g python client.py localhost 2000 "this is my message"
 
     should output Connecting to ('localhost', <port number>)...
     Connected. Now chatting...
@@ -82,7 +82,7 @@ Function examples:
 Arguments are passed in from command line
 Arguments passed in = address of server(hostname or ip), servers port number, request type(put, get, list)
 
-To do this run the following type of command in powershell. (This request will execute all request types retrospectivly you can pass in any variation of put get and list)
+To do this run the following type of command in powershell. Only one request will be entered.
     python client.py <hostname> <port> <put filename|get filename|list>
     e.g.
     python client.py localhost 6789 get test2.txt
