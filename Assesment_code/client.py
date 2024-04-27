@@ -7,7 +7,7 @@ def instruction_error():
 	exit()
 
 def check_instruction_valid():
-	if len(sys.argv) < 3:
+	if len(sys.argv) <=3 :
 		instruction_error()
 
 	instruction = sys.argv[3]
