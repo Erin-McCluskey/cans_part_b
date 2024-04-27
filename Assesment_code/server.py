@@ -49,7 +49,7 @@ while True:
 	"""
 	try:
 		print("Waiting for new client... ")
-
+		
 		"""
 		 Dequeue a connection request from the queue created by listen() earlier.
 		 If no such request is in the queue yet, this will block until one comes
@@ -59,7 +59,7 @@ while True:
 		cli_sock, cli_addr = srv_sock.accept()
 		cli_addr_str = str(cli_addr) # Translate the client address to a string (to be used shortly)
 
-		print("Client " + cli_addr_str + " connected. Now chatting...")
+		print(f"Client IP address: {cli_addr[0]}, Client Port number: {cli_addr[1]}, Server up and running.")
 
 		# Loop until either the client closes the connection or the user requests termination
 		while True:
