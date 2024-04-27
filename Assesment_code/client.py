@@ -47,7 +47,7 @@ def main():
 	# Convert to string, to be used shortly
 	srv_addr_str = str(srv_addr)
 
-	""" 
+	"""
 	Enclose the connect() call in a try-except block to catch
 	exceptions related to invalid/missing command-line arguments, 
 	port number out of range, etc. Ideally, these errors should 
