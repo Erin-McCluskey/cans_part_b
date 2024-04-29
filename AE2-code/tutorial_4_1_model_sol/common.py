@@ -35,7 +35,7 @@ def socket_to_screen(socket, sock_addr):
 
 def keyboard_to_socket(socket):
 	"""Reads data from keyboard and sends it to the passed socket.
-	
+
 	Returns number of bytes sent, or 0 to indicate the user entered "EXIT"
 	"""
 	print("You: ", end="", flush=True) # Use end="" to avoid adding a newline after the prompt, flush=True to force-print the prompt
