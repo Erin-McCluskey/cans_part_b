@@ -8,16 +8,17 @@ srv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 def instruction_error():
 	print("Your instruction is invalid use the following template with either(put, get or list): python client.py localhost 6789 get test2.txt ")
 	exit()
-def check_instruction_valid():
+def check_instruction_valid(bytes_read):
     # Check if enough command-line arguments are provided
-    if len(sys.argv) < 4:
+    if len(bytes_read) < 4:
         instruction_error()
 
     # Extract instruction and filename (if applicable)
-    instruction = sys.argv[3]
+    instruction = bytes_read[3]
     valid_instructions = ["get", "put", "list"]
 
     if instruction not in valid_instructions:
+        print("not in valid instructions")
         instruction_error()
 
     if instruction != "list":
@@ -35,13 +36,16 @@ def check_instruction_valid():
     return instruction, None
 
 def put():
-	pass
+	print("PUTTING")
+	exit()
 
 def get():
-	pass
+	print("GETTING")
+	exit()
 
 def list():
-	pass
+	print("LISTING")
+	exit()
 
 
 """
@@ -103,17 +107,21 @@ while True:
 		# Loop until either the client closes the connection or the user requests termination
 		while True:
 
-			instr, filename = check_instruction_valid()
+
+			# First, read data from client and print on screen
+			bytes_read = []
+			bytes_read = socket_to_screen(cli_sock, cli_addr_str)
+			print(bytes_read)
+			if bytes_read == None or bytes_read == 0:
+				print("Client closed connection.")
+				break
+
+			instr, filename = check_instruction_valid(bytes_read)
+			print(intr, filename)
 
 			#parse the users request
 			functions = {"get": get, "put": put, "list":list}
 			functions[instr](instr, filename)
-
-			# First, read data from client and print on screen
-			bytes_read = socket_to_screen(cli_sock, cli_addr_str)
-			if bytes_read == 0:
-				print("Client closed connection.")
-				break
 
 			# Then, read data from user and send to client
 			bytes_sent = keyboard_to_socket(cli_sock)
