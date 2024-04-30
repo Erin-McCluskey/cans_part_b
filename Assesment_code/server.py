@@ -1,6 +1,6 @@
 import socket
 import sys
-from common import socket_to_screen, keyboard_to_socket
+from common import socket_to_screen, keyboard_to_socket, check_file_exists
 
 # Create the socket on which the server will receive new connections
 srv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -8,42 +8,45 @@ srv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 def instruction_error():
 	print("Your instruction is invalid use the following template with either(put, get or list): python client.py localhost 6789 get test2.txt ")
 	exit()
-def check_instruction_valid(bytes_read):
-    # Check if enough command-line arguments are provided
-    if len(bytes_read) < 4:
-        instruction_error()
 
-    # Extract instruction and filename (if applicable)
-    instruction = bytes_read[3]
-    valid_instructions = ["get", "put", "list"]
+def check_instruction_valid(request):
+	request = request.split(" ")
 
-    if instruction not in valid_instructions:
-        print("not in valid instructions")
-        instruction_error()
+	# Check if enough request arguments are provided
+	if len(request) < 1:
+		instruction_error()
 
-    if instruction != "list":
-        filename = sys.argv[4]
-        exists = check_file_exists(side="server", filename=filename)
+	# Extract instruction and filename (if applicable)
+	instruction = request[0]
+	valid_instructions = ["get", "put", "list"]
 
-        if instruction == "get" and exists == True:
-            print("File already exists and cannot be overwritten.")
-            exit()
-        elif instruction == "put" and exists == False:
-            print("File trying to upload does not exist.")
-            exit()
+	if instruction not in valid_instructions:
+		print("not in valid instructions")
+		instruction_error()
 
-        return instruction, filename
-    return instruction, None
+	if instruction != "list":
+		filename = request[1]
+		exists = check_file_exists(side="server", filename=filename)
 
-def put():
+		if instruction == "put" and exists == True:
+			print("File already exists and cannot be overwritten.")
+			exit()
+		elif instruction == "get" and exists == False:
+			print("File trying to download does not exist.")
+			exit()
+
+		return instruction, filename
+	return instruction, None
+
+def put(instr, filename):
 	print("PUTTING")
 	exit()
 
-def get():
+def get(instr, filename):
 	print("GETTING")
 	exit()
 
-def list():
+def list(instr, filename):
 	print("LISTING")
 	exit()
 
@@ -106,29 +109,27 @@ while True:
 
 		# Loop until either the client closes the connection or the user requests termination
 		while True:
-
-
 			# First, read data from client and print on screen
-			bytes_read = []
-			bytes_read = socket_to_screen(cli_sock, cli_addr_str)
-			print(bytes_read)
-			if bytes_read == None or bytes_read == 0:
+			request = []
+			request = socket_to_screen(cli_sock, cli_addr_str)
+
+			if request == None or len(request) == 0:
 				print("Client closed connection.")
 				break
 
-			instr, filename = check_instruction_valid(bytes_read)
-			print(intr, filename)
+			instr, filename = check_instruction_valid(request)
 
 			#parse the users request
 			functions = {"get": get, "put": put, "list":list}
 			functions[instr](instr, filename)
 
+			"""
 			# Then, read data from user and send to client
 			bytes_sent = keyboard_to_socket(cli_sock)
 			if bytes_sent == 0:
 				print("User-requested exit.")
 				break
-
+			"""
 	finally:
 		"""
 		 If an error occurs or the client closes the connection, call close() on the
