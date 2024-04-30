@@ -13,7 +13,7 @@ def socket_to_screen(socket, sock_addr):
 	print(sock_addr + ": ", end="", flush=True) # Use end="" to avoid adding a newline after the communicating partner's info, flush=True to force-print the info
 
 	data = bytearray(1)
-	bytes_read = 0
+	request = ""
 
 	"""
 	 Loop for as long as data is received (0-length data means the connection was closed by
@@ -30,10 +30,10 @@ def socket_to_screen(socket, sock_addr):
 		 will be delivered in one recv() call.
 		"""
 		data = socket.recv(4096)
-
-		print(data.decode(), end="") # Use end="" to avoid adding a newline per print() call
-		bytes_read += len(data)
-	return bytes_read
+		request += data.decode()
+		#print(request, end="") # Use end="" to avoid adding a newline per print() call
+		#bytes_read += len(data)
+	return request
 
 def keyboard_to_socket(socket):
 	"""Reads data from keyboard and sends it to the passed socket.
@@ -51,6 +51,13 @@ def keyboard_to_socket(socket):
 	bytes_sent = socket.sendall(str.encode(user_input))
 	return bytes_sent
 
+def send_request(socket):
+	request = " ".join(sys.argv[3:len(sys.argv)])
+
+	# Send the whole line through the socket; remember, TCP provides no guarantee that it will be delivered in one go.
+	bytes_sent = socket.sendall(str.encode(request))
+	return bytes_sent
+
 def check_file_exists(side, filename):
 	if side == "client":
 		path = "client_data"
@@ -63,16 +70,30 @@ def check_file_exists(side, filename):
 	else:
 		return False
 
-
 def send_file(socket,filename):
-    #Opens the file with the given filename and sends its data over the net-work through the provided socket
-	pass
+	#Opens the file with the given filename and sends its data over the net-work through the provided socket
+	with open(filename, "rb") as file:
+		content = file.read()
+	bytes_sent = socket.sendall(str.encode(content))
+	return bytes_sent
+
 def recv_file(socket, filename):
-    #Creates the file with the given filename and stores into it data received from the provided socket
-	pass
+	#Creates the file with the given filename and stores into it data received from the provided socket
+	data = bytearray(1)
+	bytes_read = 0
+	open(filename, "X")
+
+	while len(data) > 0 and "\n" not in data.decode():
+		data = socket.recv(4096)
+		bytes_read += len(data)
+
+	with open(filename, "wb") as file:
+		bytes_read = file.read()
+	return bytes_read
+
 def send_listing(socket):
-    #Generates and sends the directory listing from the server to the client via the provided socket
+	#Generates and sends the directory listing from the server to the client via the provided socket
 	pass
 def recv_listing(socket):
-    #Receives the listing from the server via the provided socket and prints it onscreen.
+	#Receives the listing from the server via the provided socket and prints it onscreen.
 	pass

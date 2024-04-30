@@ -1,11 +1,57 @@
 import socket
 import sys
-from common import socket_to_screen, keyboard_to_socket
+from common import socket_to_screen, keyboard_to_socket, check_file_exists
 
 # Create the socket on which the server will receive new connections
 srv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-""" 
+def instruction_error():
+	print("Your instruction is invalid use the following template with either(put, get or list): python client.py localhost 6789 get test2.txt ")
+	exit()
+
+def check_instruction_valid(request):
+	request = request.split(" ")
+
+	# Check if enough request arguments are provided
+	if len(request) < 1:
+		instruction_error()
+
+	# Extract instruction and filename (if applicable)
+	instruction = request[0]
+	valid_instructions = ["get", "put", "list"]
+
+	if instruction not in valid_instructions:
+		print("not in valid instructions")
+		instruction_error()
+
+	if instruction != "list":
+		filename = request[1]
+		exists = check_file_exists(side="server", filename=filename)
+
+		if instruction == "put" and exists == True:
+			print("File already exists and cannot be overwritten.")
+			exit()
+		elif instruction == "get" and exists == False:
+			print("File trying to download does not exist.")
+			exit()
+
+		return instruction, filename
+	return instruction, None
+
+def put(instr, filename):
+	print("PUTTING")
+	exit()
+
+def get(instr, filename):
+	print("GETTING")
+	exit()
+
+def list(instr, filename):
+	print("LISTING")
+	exit()
+
+
+"""
  Enclose the following two lines in a try-except block to catch
  exceptions related to already bound ports, invalid/missing
  command-line arguments, port number out of range, etc. Ideally,
@@ -23,7 +69,7 @@ try:
 	 addresses).
 	"""
 	srv_sock.bind(("0.0.0.0", int(sys.argv[1]))) # sys.argv[1] is the 1st argument on the command line
-	
+
 	"""
 	 Create a queue where new connection requests will be added by
 	 the OS kernel. This number should be small enough to not waste
@@ -49,7 +95,7 @@ while True:
 	"""
 	try:
 		print("Waiting for new client... ")
-		
+
 		"""
 		 Dequeue a connection request from the queue created by listen() earlier.
 		 If no such request is in the queue yet, this will block until one comes
@@ -64,17 +110,26 @@ while True:
 		# Loop until either the client closes the connection or the user requests termination
 		while True:
 			# First, read data from client and print on screen
-			bytes_read = socket_to_screen(cli_sock, cli_addr_str)
-			if bytes_read == 0:
+			request = []
+			request = socket_to_screen(cli_sock, cli_addr_str)
+
+			if request == None or len(request) == 0:
 				print("Client closed connection.")
 				break
 
+			instr, filename = check_instruction_valid(request)
+
+			#parse the users request
+			functions = {"get": get, "put": put, "list":list}
+			functions[instr](instr, filename)
+
+			"""
 			# Then, read data from user and send to client
 			bytes_sent = keyboard_to_socket(cli_sock)
 			if bytes_sent == 0:
 				print("User-requested exit.")
 				break
-
+			"""
 	finally:
 		"""
 		 If an error occurs or the client closes the connection, call close() on the

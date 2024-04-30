@@ -1,6 +1,6 @@
 import socket
 import sys
-from common import socket_to_screen, keyboard_to_socket, check_file_exists
+from common import socket_to_screen, keyboard_to_socket, check_file_exists, send_request
 
 def instruction_error():
 	print("Your instruction is invalid use the following template with either(put, get or list): python client.py localhost 6789 get test2.txt ")
@@ -89,6 +89,8 @@ def main():
 			functions = {"get": get, "put": put, "list":list}
 			functions[instr](instr, filename)
 
+			bytes_sent = send_request(cli_sock)
+			break
 			"""
 			# First, read data from keyboard and send to server
 			bytes_sent = keyboard_to_socket(cli_sock)
