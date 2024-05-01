@@ -1,6 +1,6 @@
 import socket
 import sys
-from common import socket_to_screen, keyboard_to_socket, check_file_exists, send_request
+from common import check_file_exists, send_request, send_file, generate_report, recv_file, recv_request, recv_one_message
 
 def instruction_error():
 	print("Your instruction is invalid use the following template with either(put, get or list): python client.py localhost 6789 get test2.txt ")
@@ -17,7 +17,7 @@ def check_instruction_valid():
 
 	if instruction != "list":
 		filename = sys.argv[4]
-		exists = check_file_exists(side="client", filename=filename)
+		exists, file_path = check_file_exists(side="client", filename=filename)
 
 		if instruction == "get" and exists == True:
 			print("File already exists and cannot be overwritten.")
@@ -25,16 +25,21 @@ def check_instruction_valid():
 		elif instruction == "put" and exists == False:
 			print("File trying to upload does not exist.")
 			exit()
+
+		filename = file_path
 		return instruction, filename
 	return instruction, None
 
-def get(instr, filename):
-	pass
+def get(filename, cli_sock):
+	send_request(cli_sock)
+	data = recv_one_message(cli_sock)
+	recv_file(cli_sock, filename, data)
 
-def put(instr, filename):
-	pass
+def put(filename, cli_sock):
+	send_request(cli_sock)
+	send_file(cli_sock, filename)
 
-def list(instr, filename):
+def list(filename, cli_sock):
 	pass
 
 def main():
@@ -79,31 +84,25 @@ def main():
 	socket errors as well as errors related to user input. Ideally
 	these error conditions should be handled separately.
 	"""
+
 	try:
-		# Loop until either the server closes the connection or the user requests termination
 		while True:
+			# Loop until either the server closes the connection or the user requests termination
 			# checks the input instruction valid
 			instr, filename = check_instruction_valid()
 
 			#calls the function related to the instruction
 			functions = {"get": get, "put": put, "list":list}
-			functions[instr](instr, filename)
-
-			bytes_sent = send_request(cli_sock)
-			break
-			"""
-			# First, read data from keyboard and send to server
-			bytes_sent = keyboard_to_socket(cli_sock)
+			bytes_sent = functions[instr](filename, cli_sock)
 			if bytes_sent == 0:
 				print("User-requested exit.")
 				break
 
-			# Then, read data from server and print on screen
-			bytes_read = socket_to_screen(cli_sock, srv_addr_str)
+			#bytes_read = generate_report(cli_sock, srv_addr_str)
+			exit()
 			if bytes_read == 0:
 				print("Server closed connection.")
 				break
-			"""
 
 	finally:
 		"""

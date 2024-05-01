@@ -1,6 +1,6 @@
 import socket
 import sys
-from common import socket_to_screen, keyboard_to_socket, check_file_exists
+from common import recv_request, check_file_exists, recv_file, generate_report, send_file, recv_one_message
 
 # Create the socket on which the server will receive new connections
 srv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -26,7 +26,7 @@ def check_instruction_valid(request):
 
 	if instruction != "list":
 		filename = request[1]
-		exists = check_file_exists(side="server", filename=filename)
+		exists, file_path = check_file_exists(side="server", filename=filename)
 
 		if instruction == "put" and exists == True:
 			print("File already exists and cannot be overwritten.")
@@ -35,18 +35,19 @@ def check_instruction_valid(request):
 			print("File trying to download does not exist.")
 			exit()
 
+		filename = file_path
+
 		return instruction, filename
 	return instruction, None
 
-def put(instr, filename):
-	print("PUTTING")
-	exit()
+def put(cli_sock, filename):
+	data = recv_one_message(cli_sock)
+	recv_file(cli_sock, filename, data)
 
-def get(instr, filename):
-	print("GETTING")
-	exit()
+def get(cli_sock, filename):
+	send_file(cli_sock, filename)
 
-def list(instr, filename):
+def list(cli_sock, filename):
 	print("LISTING")
 	exit()
 
@@ -108,28 +109,20 @@ while True:
 		print(f"Client IP address: {cli_addr[0]}, Client Port number: {cli_addr[1]}, Server up and running.")
 
 		# Loop until either the client closes the connection or the user requests termination
-		while True:
-			# First, read data from client and print on screen
-			request = []
-			request = socket_to_screen(cli_sock, cli_addr_str)
+		#while True:
+		# First, read data from client and print on screen
+		request = []
+		request = recv_request(cli_sock)
 
-			if request == None or len(request) == 0:
-				print("Client closed connection.")
-				break
+		# if request == None or len(request) == 0:
+		# 	print("Client closed connection.")
+		# 	break
 
-			instr, filename = check_instruction_valid(request)
+		instr, filename = check_instruction_valid(request)
+		#parse the users request
+		functions = {"get": get, "put": put, "list":list}
+		functions[instr](cli_sock, filename)
 
-			#parse the users request
-			functions = {"get": get, "put": put, "list":list}
-			functions[instr](instr, filename)
-
-			"""
-			# Then, read data from user and send to client
-			bytes_sent = keyboard_to_socket(cli_sock)
-			if bytes_sent == 0:
-				print("User-requested exit.")
-				break
-			"""
 	finally:
 		"""
 		 If an error occurs or the client closes the connection, call close() on the
