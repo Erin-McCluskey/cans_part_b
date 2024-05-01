@@ -5,12 +5,17 @@ import time
 from os import listdir
 from os.path import isfile, join
 
-def recv_request(socket):
-    data = bytearray(1)
+def recv_request(socket, cli_addr, request):
     request = ""
+    while len(request) == 0:
+        data = bytearray(1)
+        request = ""
 
-    data = socket.recv(4096)
-    request += data.decode()
+        data = socket.recv(4096)
+        request += data.decode()
+
+        if request == "invalid":
+            generate_report(socket, str(cli_addr[0]), str(cli_addr[1]), "Invalid", "Failed", "[Request was formatted incorrectly]")
     return request
 
 def send_request(socket):
@@ -34,7 +39,6 @@ def send_file(socket,filename):
     with open(filename, "rb") as file:
         content = file.read()
     time.sleep(5)
-    #print(content)
     send_one_message(socket, content)
 
 def recv_file(socket, filename, data):
@@ -53,8 +57,11 @@ def recv_listing(socket):
     #Receives the listing from the server via the provided socket and prints it onscreen.
     pass
 
-def generate_report(socket, sock_addr):
-    pass
+def generate_report(socket, IP, port_number, request_type, status, errors, filename = "None"):
+    socket.sendall(str.encode("invalid"))
+    print("IP: " + IP + ", port number: "+ port_number + ", request type: " + request_type + ", Filename: "+ filename +", Status: " + status + ", Errors encountered: " + errors)
+    socket.close()
+    exit(1)
 
 def send_one_message(sock, data):
     length = len(data)
