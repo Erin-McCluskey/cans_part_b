@@ -91,9 +91,14 @@ def recv_file(socket, filename):
 		bytes_read = file.read()
 	return bytes_read
 
-def send_listing(socket):
+def send_listing(socket, files_in_server):
 	#Generates and sends the directory listing from the server to the client via the provided socket
-	pass
+	bytes_sent = socket.sendall(str.encode(files_in_server))
+	if bytes_sent == 0:
+		print("User-requested exit.")
+
+
+
 def recv_listing(socket):
 	#Receives the listing from the server via the provided socket and prints it onscreen.
 	pass

@@ -1,5 +1,6 @@
 import socket
 import sys
+import os
 from common import socket_to_screen, keyboard_to_socket, check_file_exists, send_request
 
 def instruction_error():
@@ -34,8 +35,29 @@ def get(instr, filename):
 def put(instr, filename):
 	pass
 
+
 def list(instr, filename):
-	pass
+	print("listing")
+
+
+
+# #def list(instr, server_dir = "/Assesment_code/server_data/"):
+# 	#def list(instr):
+# 	print("SERVER LISTING")
+
+# 	# List all the files and directories in the specified directory
+# 	path = os.path.join(os.getcwd(), "server_data")
+# 	files_in_server = os.listdir(path)
+# #	files_in_server = os.listdir(server_dir)
+
+# 	# Print the list of entries
+# 	print(*files_in_server, sep='\n')
+# 	# directory = "/Assesment_code/server_data/"
+# 	# # List all the files and directories in the specified directory
+# 	# files_in_server = os.listdir(directory)
+
+# 	# # Print the list of entries
+# 	# print(files_in_server)
 
 def main():
 	# Create the socket with which we will connect to the server
@@ -49,8 +71,8 @@ def main():
 
 	"""
 	Enclose the connect() call in a try-except block to catch
-	exceptions related to invalid/missing command-line arguments, 
-	port number out of range, etc. Ideally, these errors should 
+	exceptions related to invalid/missing command-line arguments,
+	port number out of range, etc. Ideally, these errors should
 	have been handled separately.
 	"""
 	try:
@@ -98,6 +120,19 @@ def main():
 				print("User-requested exit.")
 				break
 
+			# Then, read data from server and print on screen
+			bytes_read = socket_to_screen(cli_sock, srv_addr_str)
+			if bytes_read == 0:
+				print("Server closed connection.")
+				break
+			break
+			"""
+			"""
+			# First, read data from keyboard and send to server
+			bytes_sent = keyboard_to_socket(cli_sock)
+			if bytes_sent == 0:
+				print("User-requested exit.")
+				break
 			# Then, read data from server and print on screen
 			bytes_read = socket_to_screen(cli_sock, srv_addr_str)
 			if bytes_read == 0:

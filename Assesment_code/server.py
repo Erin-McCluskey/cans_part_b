@@ -1,5 +1,6 @@
 import socket
 import sys
+import os
 from common import socket_to_screen, keyboard_to_socket, check_file_exists
 
 # Create the socket on which the server will receive new connections
@@ -47,8 +48,19 @@ def get(instr, filename):
 	exit()
 
 def list(instr, filename):
-	print("LISTING")
-	exit()
+#def list(instr, server_dir = "/Assesment_code/server_data/"):
+	#def list(instr):
+	print("SERVER LISTING")
+
+	# List all the files and directories in the specified directory
+	path = os.path.join(os.getcwd(), "server_data")
+	files_in_server = os.listdir(path)
+#	files_in_server = os.listdir(server_dir)
+
+	# Print the list of entries
+	print(*files_in_server, sep='\n')
+
+
 
 
 """
