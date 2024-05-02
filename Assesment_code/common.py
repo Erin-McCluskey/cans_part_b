@@ -1,7 +1,16 @@
 import sys
 import socket
+import os
 from os import listdir
 from os.path import isfile, join
+
+def recv_request(socket):
+    data = bytearray(1)
+    request = ""
+
+    data = socket.recv(4096)
+    request += data.decode()
+    return request
 
 def socket_to_screen(socket, sock_addr):
 	"""Reads data from a passed socket and prints it on screen.
@@ -91,14 +100,43 @@ def recv_file(socket, filename):
 		bytes_read = file.read()
 	return bytes_read
 
-def send_listing(socket, files_in_server):
-	#Generates and sends the directory listing from the server to the client via the provided socket
-	bytes_sent = socket.sendall(str.encode(files_in_server))
-	if bytes_sent == 0:
-		print("User-requested exit.")
+def send_listing(socket):
+    # Generates and sends the directory listing from the server to the client.
+    files = os.listdir(os.path.join(os.getcwd(), "server_data"))
+    print(files)
+    #socket.sendall(str.encode("\n".join(files)))
+    bytes_sent = socket.sendall("\n".join(files).encode())
+    return bytes_sent
+# -def send_listing(socket):
+# -	#Generates and sends the directory listing from the server to the client via the provided socket
+# -    print("SERVER LISTING")
+# -
+# -	# List all the files and directories in the specified directory
+# -    path = os.path.join(os.getcwd(), "server_data")
+# -    files_in_server = os.listdir(path)
+# -#	files_in_server = os.listdir(server_dir)
+# -
+# -	# Print the list of entries
+# -    # print(*files_in_server, sep='\n')
+# -
+# -
+# -
+# -    bytes_sent = socket.sendall(str.encode(files_in_server))
+# -    if bytes_sent == 0:
+# -    	print("User-requested exit.")
 
 
 
 def recv_listing(socket):
 	#Receives the listing from the server via the provided socket and prints it onscreen.
-	pass
+	data = bytearray(1)
+	bytes_read = 0
+
+	while len(data) > 0 and "\n" not in data.decode():
+		data = socket.recv(4096)
+		bytes_read += len(data)
+
+	files_in_server = data.decode().split()
+	print(files_in_server)
+	return files_in_server
+

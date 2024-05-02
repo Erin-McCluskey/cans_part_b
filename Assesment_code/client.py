@@ -1,7 +1,7 @@
 import socket
 import sys
 import os
-from common import socket_to_screen, keyboard_to_socket, check_file_exists, send_request
+from common import *
 
 def instruction_error():
 	print("Your instruction is invalid use the following template with either(put, get or list): python client.py localhost 6789 get test2.txt ")
@@ -36,10 +36,10 @@ def put(instr, filename):
 	pass
 
 
-def list(instr, filename):
-	print("listing")
-
-
+def list(filename, cli_sock):
+	send_request(cli_sock)
+	files_in_server = recv_listing(cli_sock)
+	print(files_in_server)
 
 # #def list(instr, server_dir = "/Assesment_code/server_data/"):
 # 	#def list(instr):
@@ -109,24 +109,23 @@ def main():
 
 			#calls the function related to the instruction
 			functions = {"get": get, "put": put, "list":list}
-			functions[instr](instr, filename)
+			bytes_sent = functions[instr](filename, cli_sock)
 
-			bytes_sent = send_request(cli_sock)
 			break
-			"""
+
 			# First, read data from keyboard and send to server
-			bytes_sent = keyboard_to_socket(cli_sock)
+			# bytes_sent = keyboard_to_socket(cli_sock)
 			if bytes_sent == 0:
 				print("User-requested exit.")
 				break
 
 			# Then, read data from server and print on screen
-			bytes_read = socket_to_screen(cli_sock, srv_addr_str)
+			# bytes_read = socket_to_screen(cli_sock, srv_addr_str)
+			exit()
 			if bytes_read == 0:
 				print("Server closed connection.")
 				break
-			break
-			"""
+
 			"""
 			# First, read data from keyboard and send to server
 			bytes_sent = keyboard_to_socket(cli_sock)

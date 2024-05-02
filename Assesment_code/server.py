@@ -1,7 +1,7 @@
 import socket
 import sys
 import os
-from common import socket_to_screen, keyboard_to_socket, check_file_exists
+from common import *
 
 # Create the socket on which the server will receive new connections
 srv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -47,18 +47,19 @@ def get(instr, filename):
 	print("GETTING")
 	exit()
 
-def list(instr, filename):
+def list(cli_sock, filename):
+	send_listing(cli_sock)
 #def list(instr, server_dir = "/Assesment_code/server_data/"):
 	#def list(instr):
-	print("SERVER LISTING")
+# 	print("SERVER LISTING")
 
-	# List all the files and directories in the specified directory
-	path = os.path.join(os.getcwd(), "server_data")
-	files_in_server = os.listdir(path)
-#	files_in_server = os.listdir(server_dir)
+# 	# List all the files and directories in the specified directory
+# 	path = os.path.join(os.getcwd(), "server_data")
+# 	files_in_server = os.listdir(path)
+# #	files_in_server = os.listdir(server_dir)
 
-	# Print the list of entries
-	print(*files_in_server, sep='\n')
+# 	# Print the list of entries
+# 	print(*files_in_server, sep='\n')
 
 
 
@@ -120,28 +121,28 @@ while True:
 		print(f"Client IP address: {cli_addr[0]}, Client Port number: {cli_addr[1]}, Server up and running.")
 
 		# Loop until either the client closes the connection or the user requests termination
-		while True:
-			# First, read data from client and print on screen
-			request = []
-			request = socket_to_screen(cli_sock, cli_addr_str)
+		#while True:
+		# First, read data from client and print on screen
+		request = []
+		request = recv_request(cli_sock)
 
-			if request == None or len(request) == 0:
-				print("Client closed connection.")
-				break
+		# if request == None or len(request) == 0:
+		# 	print("Client closed connection.")
+		# 	break
 
-			instr, filename = check_instruction_valid(request)
+		instr, filename = check_instruction_valid(request)
 
-			#parse the users request
-			functions = {"get": get, "put": put, "list":list}
-			functions[instr](instr, filename)
+		#parse the users request
+		functions = {"get": get, "put": put, "list":list}
+		functions[instr](cli_sock, filename)
 
-			"""
-			# Then, read data from user and send to client
-			bytes_sent = keyboard_to_socket(cli_sock)
-			if bytes_sent == 0:
-				print("User-requested exit.")
-				break
-			"""
+		"""
+		# Then, read data from user and send to client
+		bytes_sent = keyboard_to_socket(cli_sock)
+		if bytes_sent == 0:
+			print("User-requested exit.")
+			break
+		"""
 	finally:
 		"""
 		 If an error occurs or the client closes the connection, call close() on the
