@@ -1,7 +1,7 @@
 import socket
 import sys
 import os
-from common import recv_request, check_file_exists, recv_file, generate_report, send_file, recv_one_message
+from common import *
 
 # Create the socket on which the server will receive new connections
 srv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -31,7 +31,6 @@ def check_valid_files(instruction, cli_sock, errors, cli_addr, filename):
 
 	if len(errors) != 0:
 		generate_report(cli_sock, str(cli_addr[0]), str(cli_addr[1]), instruction, "Failed", str(errors ), filename=filename)
-
 	filename = file_path
 	return instruction, filename
 
@@ -59,9 +58,9 @@ def get(cli_sock, filename, cli_addr):
 	except Exception as e:
 		generate_report(cli_sock, str(cli_addr[0]), str(cli_addr[1]), "get", "Failed", str(e), filename=filename)
 
-def list(cli_sock, filename):
-	print("LISTING")
-	exit()
+def list(cli_sock, filename, cli_addr):
+	send_listing(cli_sock)
+
 
 
 """

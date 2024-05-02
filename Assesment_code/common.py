@@ -2,6 +2,7 @@ import sys
 import socket
 import struct
 import time
+import os
 from os import listdir
 from os.path import isfile, join
 
@@ -51,11 +52,25 @@ def recv_file(socket, filename, data):
         file.write(data)
 
 def send_listing(socket):
-    #Generates and sends the directory listing from the server to the client via the provided socket
-    pass
+    # Generates and sends the directory listing from the server to the client.
+    files = os.listdir(os.path.join(os.getcwd(), "server_data"))
+    print(files)
+
+    bytes_sent = socket.sendall("\n".join(files).encode())
+    return bytes_sent
+
 def recv_listing(socket):
-    #Receives the listing from the server via the provided socket and prints it onscreen.
-    pass
+	#Receives the listing from the server via the provided socket and prints it onscreen.
+	data = bytearray(1)
+	bytes_read = 0
+
+	data = socket.recv(4096)
+	bytes_read += len(data)
+
+	files_in_server = data.decode().split()
+
+	return files_in_server
+
 
 def generate_report(socket, IP, port_number, request_type, status, errors, filename = "None"):
     socket.sendall(str.encode("invalid"))

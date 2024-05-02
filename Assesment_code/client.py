@@ -1,7 +1,7 @@
 import socket
 import sys
 import os
-from common import check_file_exists, send_request, send_file, generate_report, recv_file, recv_one_message
+from common import *
 
 def check_args(cli_sock, errors, srv_addr):
 	if len(sys.argv) <=3 :
@@ -69,8 +69,10 @@ def put(filename, cli_sock, srv_addr):
 	except Exception as e:
 		generate_report(cli_sock, str(srv_addr[0]), str(srv_addr[1]), "put", "Failed", str(e), filename=filename)
 
-def list(filename, cli_sock):
-	pass
+def list(filename, cli_sock, srv_addr):
+	send_request(cli_sock)
+	files_in_server = recv_listing(cli_sock)
+	print(files_in_server)
 
 def main():
 	# Create the socket with which we will connect to the server
@@ -84,8 +86,8 @@ def main():
 
 	"""
 	Enclose the connect() call in a try-except block to catch
-	exceptions related to invalid/missing command-line arguments, 
-	port number out of range, etc. Ideally, these errors should 
+	exceptions related to invalid/missing command-line arguments,
+	port number out of range, etc. Ideally, these errors should
 	have been handled separately.
 	"""
 	try:
