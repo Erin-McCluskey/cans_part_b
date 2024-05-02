@@ -70,9 +70,13 @@ def put(filename, cli_sock, srv_addr):
 		generate_report(cli_sock, str(srv_addr[0]), str(srv_addr[1]), "put", "Failed", str(e), filename=filename)
 
 def list(filename, cli_sock, srv_addr):
-	send_request(cli_sock)
-	files_in_server = recv_listing(cli_sock)
-	print(files_in_server)
+	try:
+		send_request(cli_sock)
+		files_in_server = recv_listing(cli_sock)
+		generate_report(cli_sock, str(srv_addr[0]), str(srv_addr[1]), "list", "Success", "None", filename=filename)
+		print(files_in_server)
+	except Exception as e:
+		generate_report(cli_sock, str(srv_addr[0]), str(srv_addr[1]), "list", "Failed", str(e), filename=filename)
 
 def main():
 	# Create the socket with which we will connect to the server

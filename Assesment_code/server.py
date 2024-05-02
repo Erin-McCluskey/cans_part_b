@@ -59,7 +59,10 @@ def get(cli_sock, filename, cli_addr):
 		generate_report(cli_sock, str(cli_addr[0]), str(cli_addr[1]), "get", "Failed", str(e), filename=filename)
 
 def list(cli_sock, filename, cli_addr):
-	send_listing(cli_sock)
+	try:
+	    send_listing(cli_sock)
+	except Exception as e:
+		generate_report(cli_sock, str(cli_addr[0]), str(cli_addr[1]), "list", "Failed", str(e), filename=filename)
 
 
 
