@@ -19,6 +19,7 @@ def check_valid_files(instruction, cli_sock, errors, cli_addr, filename):
 	exists, file_path = check_file_exists(side="server", filename=filename)
 
 	if exists == True:
+		filename = file_path
 		if os.path.getsize(filename) <= 0:
 			errors.append("This file is empty")
 
@@ -46,7 +47,6 @@ def check_instruction_valid(request, cli_addr):
 
 def put(cli_sock, filename, cli_addr):
 	try:
-		print(filename)
 		data = recv_one_message(cli_sock)
 		recv_file(cli_sock, filename, data)
 		generate_report(cli_sock, str(cli_addr[0]), str(cli_addr[1]), "put", "Success", "None", filename=filename)

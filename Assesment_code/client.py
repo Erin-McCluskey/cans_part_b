@@ -26,6 +26,7 @@ def check_valid_files(instruction, cli_sock, errors, srv_addr):
 	exists, file_path = check_file_exists(side="client", filename=filename)
 
 	if exists == True:
+		filename = file_path
 		if os.path.getsize(filename) <= 0:
 			errors.append("This file is empty")
 
