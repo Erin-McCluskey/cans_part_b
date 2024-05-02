@@ -41,7 +41,7 @@ https://realpython.com/read-write-files-python/
 
 ## The Report
 
-+ In your report, don't focus too much on details of the implementation (i.e., the code). What is of primary interest for the report is the _application protocol_. That is, what kind of messages are transferred between client and hosts, and in what sequence? Why did you decide to have those messages? How did you ensure exact number of bytes are sent/received? How do you handle and communicate errors, corner cases? 
++ In your report, don't focus too much on details of the implementation (i.e., the code). What is of primary interest for the report is the _application protocol_. That is, what kind of messages are transferred between client and hosts, and in what sequence? Why did you decide to have those messages? How did you ensure exact number of bytes are sent/received? How do you handle and communicate errors, corner cases?
 
 + It's good practice to add comments along the lines of "how to use this" with your submitted code (and/or report). The point is, best not to presume the user of your code knows how to use it already.
 

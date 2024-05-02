@@ -49,17 +49,6 @@ def get(instr, filename):
 
 def list(cli_sock, filename):
 	send_listing(cli_sock)
-#def list(instr, server_dir = "/Assesment_code/server_data/"):
-	#def list(instr):
-# 	print("SERVER LISTING")
-
-# 	# List all the files and directories in the specified directory
-# 	path = os.path.join(os.getcwd(), "server_data")
-# 	files_in_server = os.listdir(path)
-# #	files_in_server = os.listdir(server_dir)
-
-# 	# Print the list of entries
-# 	print(*files_in_server, sep='\n')
 
 
 
