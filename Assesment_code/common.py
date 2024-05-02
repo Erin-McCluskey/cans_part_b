@@ -54,7 +54,6 @@ def recv_file(socket, filename, data):
 def send_listing(socket):
     # Generates and sends the directory listing from the server to the client.
     files = os.listdir(os.path.join(os.getcwd(), "server_data"))
-    print(files)
 
     bytes_sent = socket.sendall("\n".join(files).encode())
     return bytes_sent
@@ -74,7 +73,11 @@ def recv_listing(socket):
 
 def generate_report(socket, IP, port_number, request_type, status, errors, filename = "None"):
     socket.sendall(str.encode("invalid"))
-    print("IP: " + IP + ", port number: "+ port_number + ", request type: " + request_type + ", Filename: "+ filename +", Status: " + status + ", Errors encountered: " + errors)
+    if request_type == "list":
+    	print("IP: " + IP + ", port number: "+ port_number + ", request type: " + request_type + ", Status: " + status + ", Errors encountered: " + errors)
+    	return
+    elif request_type == "put" or request_type == "get":
+    	print("IP: " + IP + ", port number: "+ port_number + ", request type: " + request_type + ", Filename: "+ filename +", Status: " + status + ", Errors encountered: " + errors)
     socket.close()
     exit(1)
 
