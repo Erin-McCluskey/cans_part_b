@@ -6,50 +6,60 @@ from common import *
 # Create the socket on which the server will receive new connections
 srv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-def instruction_error():
-	print("Your instruction is invalid use the following template with either(put, get or list): python client.py localhost 6789 get test2.txt ")
-	exit()
-
-def check_instruction_valid(request):
-	request = request.split(" ")
-
-	# Check if enough request arguments are provided
-	if len(request) < 1:
-		instruction_error()
-
-	# Extract instruction and filename (if applicable)
+def check_args(cli_sock, errors, cli_addr, request):
 	instruction = request[0]
 	valid_instructions = ["get", "put", "list"]
 
-	if instruction not in valid_instructions:
-		print("not in valid instructions")
-		instruction_error()
+	if (len(request) < 1) or  instruction not in valid_instructions:
+		errors.append("Your request is invalid use the following template with either(put, get or list): python client.py localhost 6789 get test2.txt")
+		generate_report(cli_sock, str(cli_addr[0]), str(cli_addr[1]), "Invalid", "Failed", str(errors ))
+	return instruction
 
-	if instruction != "list":
-		filename = request[1]
-		exists = check_file_exists(side="server", filename=filename)
+def check_valid_files(instruction, cli_sock, errors, cli_addr, filename):
+	exists, file_path = check_file_exists(side="server", filename=filename)
 
-		if instruction == "put" and exists == True:
-			print("File already exists and cannot be overwritten.")
-			exit()
-		elif instruction == "get" and exists == False:
-			print("File trying to download does not exist.")
-			exit()
+	if exists == True:
+		filename = file_path
+		if os.path.getsize(filename) <= 0:
+			errors.append("This file is empty")
 
-		return instruction, filename
-	return instruction, None
+		elif instruction == "put":
+			errors.append("File already exists and cannot be overwritten.")
 
-def put(instr, filename):
-	print("PUTTING")
-	exit()
+	elif instruction == "get" and exists == False:
+		errors.append("File trying to download does not exist.")
 
-def get(instr, filename):
-	print("GETTING")
-	exit()
+	if len(errors) != 0:
+		generate_report(cli_sock, str(cli_addr[0]), str(cli_addr[1]), instruction, "Failed", str(errors ), filename=filename)
+	filename = file_path
+	return instruction, filename
 
-def list(cli_sock, filename):
+def check_instruction_valid(request, cli_addr):
+	errors = []
+	request = request.split(" ")
+	instruction = check_args(cli_sock, errors, cli_addr, request)
+
+	if instruction == "list":
+		return instruction, None
+
+	return check_valid_files(instruction, cli_sock, errors, cli_addr, filename= request[1])
+
+def put(cli_sock, filename, cli_addr):
+	try:
+		data = recv_one_message(cli_sock)
+		recv_file(cli_sock, filename, data)
+		generate_report(cli_sock, str(cli_addr[0]), str(cli_addr[1]), "put", "Success", "None", filename=filename)
+	except Exception as e:
+		generate_report(cli_sock, str(cli_addr[0]), str(cli_addr[1]), "put", "Failed", str(e), filename=filename)
+
+def get(cli_sock, filename, cli_addr):
+	try:
+		send_file(cli_sock, filename)
+	except Exception as e:
+		generate_report(cli_sock, str(cli_addr[0]), str(cli_addr[1]), "get", "Failed", str(e), filename=filename)
+
+def list(cli_sock, filename, cli_addr):
 	send_listing(cli_sock)
-
 
 
 
@@ -113,25 +123,17 @@ while True:
 		#while True:
 		# First, read data from client and print on screen
 		request = []
-		request = recv_request(cli_sock)
+		request = recv_request(cli_sock, cli_addr, request)
 
 		# if request == None or len(request) == 0:
 		# 	print("Client closed connection.")
 		# 	break
 
-		instr, filename = check_instruction_valid(request)
-
+		instr, filename = check_instruction_valid(request, cli_addr)
 		#parse the users request
 		functions = {"get": get, "put": put, "list":list}
-		functions[instr](cli_sock, filename)
+		functions[instr](cli_sock, filename, cli_addr)
 
-		"""
-		# Then, read data from user and send to client
-		bytes_sent = keyboard_to_socket(cli_sock)
-		if bytes_sent == 0:
-			print("User-requested exit.")
-			break
-		"""
 	finally:
 		"""
 		 If an error occurs or the client closes the connection, call close() on the

@@ -3,61 +3,76 @@ import sys
 import os
 from common import *
 
-def instruction_error():
-	print("Your instruction is invalid use the following template with either(put, get or list): python client.py localhost 6789 get test2.txt ")
-	exit()
-
-def check_instruction_valid():
+def check_args(cli_sock, errors, srv_addr):
 	if len(sys.argv) <=3 :
-		instruction_error()
+		errors.append("Your instruction is invalid use the following template with either(put, get or list): python client.py localhost 6789 get test2.txt")
+		generate_report(cli_sock, str(srv_addr[0]), str(srv_addr[1]), "Invalid", "Failed", str(errors ))
 
-	instruction = sys.argv[3]
+def check_valid_instruction(instruction, cli_sock, errors, srv_addr):
 	valid_instr = ["get", "put", "list"]
 	if instruction not in valid_instr:
-		instruction_error()
+		errors.append("Your instruction is invalid use the following template with either(put, get or list): python client.py localhost 6789 get test2.txt")
+		generate_report(cli_sock, str(srv_addr[0]), str(srv_addr[1]), "Invalid", "Failed", str(errors ))
 
-	if instruction != "list":
-		filename = sys.argv[4]
-		exists = check_file_exists(side="client", filename=filename)
+def check_valid_files(instruction, cli_sock, errors, srv_addr):
+	if len(sys.argv)<=4:
+		errors.append("Filename not provided")
+		generate_report(cli_sock, str(srv_addr[0]), str(srv_addr[1]), instruction, "Failed", str(errors ))
 
-		if instruction == "get" and exists == True:
-			print("File already exists and cannot be overwritten.")
-			exit()
-		elif instruction == "put" and exists == False:
-			print("File trying to upload does not exist.")
-			exit()
-		return instruction, filename
-	return instruction, None
+	filename = sys.argv[4]
+	if len(filename) > 50:
+		errors.append("Filename too long")
 
-def get(instr, filename):
-	pass
+	exists, file_path = check_file_exists(side="client", filename=filename)
 
-def put(instr, filename):
-	pass
+	if exists == True:
+		filename = file_path
+		if os.path.getsize(filename) <= 0:
+			errors.append("This file is empty")
 
+		elif instruction == "get":
+			errors.append("File already exists and cannot be overwritten.")
 
-def list(filename, cli_sock):
+	elif instruction == "put" and exists == False:
+		errors.append("File trying to upload does not exist.")
+
+	if len(errors) != 0:
+		generate_report(cli_sock, str(srv_addr[0]), str(srv_addr[1]), instruction, "Failed", str(errors ), filename=filename)
+	filename = file_path
+	return instruction, filename
+
+def check_instruction_valid(cli_sock, srv_addr):
+	errors = []
+	check_args(cli_sock, errors, srv_addr)
+
+	instruction = sys.argv[3]
+	check_valid_instruction(instruction, cli_sock, errors, srv_addr)
+
+	if instruction == "list":
+		return instruction, None
+
+	return check_valid_files(instruction, cli_sock, errors, srv_addr)
+
+def get(filename, cli_sock, srv_addr):
+	try:
+		send_request(cli_sock)
+		data = recv_one_message(cli_sock)
+		recv_file(cli_sock, filename, data)
+		generate_report(cli_sock, str(srv_addr[0]), str(srv_addr[1]), "get", "Success", "None", filename=filename)
+	except Exception as e:
+		generate_report(cli_sock, str(srv_addr[0]), str(srv_addr[1]), "get", "Failed", str(e), filename=filename)
+
+def put(filename, cli_sock, srv_addr):
+	try:
+		send_request(cli_sock)
+		send_file(cli_sock, filename)
+	except Exception as e:
+		generate_report(cli_sock, str(srv_addr[0]), str(srv_addr[1]), "put", "Failed", str(e), filename=filename)
+
+def list(filename, cli_sock, srv_addr):
 	send_request(cli_sock)
 	files_in_server = recv_listing(cli_sock)
 	print(files_in_server)
-
-# #def list(instr, server_dir = "/Assesment_code/server_data/"):
-# 	#def list(instr):
-# 	print("SERVER LISTING")
-
-# 	# List all the files and directories in the specified directory
-# 	path = os.path.join(os.getcwd(), "server_data")
-# 	files_in_server = os.listdir(path)
-# #	files_in_server = os.listdir(server_dir)
-
-# 	# Print the list of entries
-# 	print(*files_in_server, sep='\n')
-# 	# directory = "/Assesment_code/server_data/"
-# 	# # List all the files and directories in the specified directory
-# 	# files_in_server = os.listdir(directory)
-
-# 	# # Print the list of entries
-# 	# print(files_in_server)
 
 def main():
 	# Create the socket with which we will connect to the server
@@ -101,43 +116,14 @@ def main():
 	socket errors as well as errors related to user input. Ideally
 	these error conditions should be handled separately.
 	"""
+
 	try:
-		# Loop until either the server closes the connection or the user requests termination
-		while True:
-			# checks the input instruction valid
-			instr, filename = check_instruction_valid()
+		# checks the input instruction valid
+		instr, filename = check_instruction_valid(cli_sock, srv_addr)
 
-			#calls the function related to the instruction
-			functions = {"get": get, "put": put, "list":list}
-			bytes_sent = functions[instr](filename, cli_sock)
-
-			break
-
-			# First, read data from keyboard and send to server
-			# bytes_sent = keyboard_to_socket(cli_sock)
-			if bytes_sent == 0:
-				print("User-requested exit.")
-				break
-
-			# Then, read data from server and print on screen
-			# bytes_read = socket_to_screen(cli_sock, srv_addr_str)
-			exit()
-			if bytes_read == 0:
-				print("Server closed connection.")
-				break
-
-			"""
-			# First, read data from keyboard and send to server
-			bytes_sent = keyboard_to_socket(cli_sock)
-			if bytes_sent == 0:
-				print("User-requested exit.")
-				break
-			# Then, read data from server and print on screen
-			bytes_read = socket_to_screen(cli_sock, srv_addr_str)
-			if bytes_read == 0:
-				print("Server closed connection.")
-				break
-			"""
+		#calls the function related to the instruction
+		functions = {"get": get, "put": put, "list":list}
+		functions[instr](filename, cli_sock, srv_addr)
 
 	finally:
 		"""
